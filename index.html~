@@ -11,31 +11,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
-        }
-
-        #language-switch {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
         }
 
         #game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            max-width: 90%;
-            width: 400px;
-        }
-
-        #instruction {
-            text-align: center;
-            margin-bottom: 20px;
-            max-width: 300px;
-            word-wrap: break-word;
         }
 
         #grid {
@@ -81,6 +65,7 @@
 
         #records {
             width: 100%;
+            max-width: 400px;
             border-collapse: collapse;
         }
 
@@ -112,10 +97,7 @@
     </style>
 </head>
 <body>
-    <div id="language-switch">中文 | English</div>
     <div id="game-container">
-        <h1 id="page-title">舒尔特方格游戏 - 第1关</h1>
-        <div id="instruction">点击开始，按从小到大依次点击1到25</div>
         <div id="grid"></div>
         <div id="buttons">
             <button id="start">开始</button>
@@ -127,7 +109,6 @@
                 <tr>
                     <th>昵称</th>
                     <th>完成时间</th>
-                    <th>关卡</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -140,9 +121,6 @@
         const resetButton = document.getElementById('reset');
         const timerDisplay = document.getElementById('timer');
         const recordsTable = document.getElementById('records').getElementsByTagName('tbody')[0];
-        const languageSwitch = document.getElementById('language-switch');
-        const pageTitle = document.getElementById('page-title');
-        const instruction = document.getElementById('instruction');
 
         let numbers = Array.from({length: 25}, (_, i) => i + 1);
         let currentNumber = 1;
@@ -150,39 +128,6 @@
         let startTime;
         let timerInterval;
         let isGameRunning = false;
-        let currentPage = 1;
-        let isEnglish = false;
-
-        const translations = {
-            'zh': {
-                'title': '舒尔特方格游戏 - 第',
-                'level': '关',
-                'instruction': '点击开始，按从小到大依次点击1到25',
-                'start': '开始',
-                'reset': '重置',
-                'nickname': '昵称',
-                'completionTime': '完成时间',
-                'level': '关卡',
-                'congratulations': '恭喜完成！请输入您的昵称：',
-                'nextNumber': '下一个正确的数字是：',
-                'switchLanguage': '中文 | English',
-                'gameOver': '游戏结束！'
-            },
-            'en': {
-                'title': 'Schulte Grid Game - Level ',
-                'level': '',
-                'instruction': 'Click start, then click numbers from 1 to 25 in ascending order',
-                'start': 'Start',
-                'reset': 'Reset',
-                'nickname': 'Nickname',
-                'completionTime': 'Completion Time',
-                'level': 'Level',
-                'congratulations': 'Congratulations! Please enter your nickname:',
-                'nextNumber': 'The next correct number is: ',
-                'switchLanguage': 'English | 中文',
-                'gameOver': 'Game Over!'
-            }
-        };
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -206,19 +151,15 @@
         function selectCell(cell, num) {
             if (!isGameRunning) return;
             if (num === currentNumber) {
-                if (currentPage === 1) {
-                    if (lastSelectedCell) {
-                        lastSelectedCell.classList.remove('selected');
-                    }
-                    cell.classList.add('selected');
-                    lastSelectedCell = cell;
+                if (lastSelectedCell) {
+                    lastSelectedCell.classList.remove('selected');
                 }
+                cell.classList.add('selected');
+                lastSelectedCell = cell;
                 currentNumber++;
                 if (currentNumber > 25) {
                     endGame();
                 }
-            } else {
-                alert(translations[isEnglish ? 'en' : 'zh']['nextNumber'] + currentNumber);
             }
         }
 
@@ -237,7 +178,7 @@
             clearInterval(timerInterval);
             timerDisplay.textContent = '00:00:00:000';
             currentNumber = 1;
-            if (currentPage === 1 && lastSelectedCell) {
+            if (lastSelectedCell) {
                 lastSelectedCell.classList.remove('selected');
             }
             lastSelectedCell = null;
@@ -251,19 +192,11 @@
             const endTime = new Date().getTime();
             const totalTime = endTime - startTime;
             const formattedTime = formatTime(totalTime);
-            const name = prompt(translations[isEnglish ? 'en' : 'zh']['congratulations']);
+            const name = prompt('恭喜完成！请输入您的昵称：');
             if (name) {
-                addRecord(name, formattedTime, currentPage);
+                addRecord(name, formattedTime);
             }
             startButton.disabled = false;
-
-            if (currentPage === 1) {
-                currentPage = 2;
-                updatePageTitle();
-                resetGame();
-            } else {
-                alert(translations[isEnglish ? 'en' : 'zh']['gameOver']);
-            }
         }
 
         function updateTimer() {
@@ -277,64 +210,18 @@
             return date.toISOString().substr(11, 12);
         }
 
-        function addRecord(name, time, level) {
+        function addRecord(name, time) {
             const row = recordsTable.insertRow(0);
             const nameCell = row.insertCell(0);
             const timeCell = row.insertCell(1);
-            const levelCell = row.insertCell(2);
             nameCell.textContent = name;
             timeCell.textContent = time;
-            levelCell.textContent = level;
-        }
-
-        function updatePageTitle() {
-            pageTitle.textContent = `${translations[isEnglish ? 'en' : 'zh']['title']}${currentPage}${translations[isEnglish ? 'en' : 'zh']['level']}`;
-        }
-
-        function switchLanguage() {
-            isEnglish = !isEnglish;
-            updateTexts();
-        }
-
-        function updateTexts() {
-            const lang = isEnglish ? 'en' : 'zh';
-            languageSwitch.textContent = translations[lang]['switchLanguage'];
-            updatePageTitle();
-            instruction.textContent = translations[lang]['instruction'];
-            instruction.style.textAlign = 'center';
-            instruction.style.wordSpacing = isEnglish ? '0.3em' : 'normal';
-
-            // 为长文本添加自动换行
-            if (isEnglish) {
-                let words = instruction.textContent.split(' ');
-                let lines = [];
-                let currentLine = '';
-                words.forEach(word => {
-                    if ((currentLine + word).length > 30) {
-                        lines.push(currentLine.trim());
-                        currentLine = '';
-                    }
-                    currentLine += word + ' ';
-                });
-                if (currentLine) {
-                    lines.push(currentLine.trim());
-                }
-                instruction.innerHTML = lines.join('<br>');
-            }
-
-            startButton.textContent = translations[lang]['start'];
-            resetButton.textContent = translations[lang]['reset'];
-            document.querySelector('#records th:nth-child(1)').textContent = translations[lang]['nickname'];
-            document.querySelector('#records th:nth-child(2)').textContent = translations[lang]['completionTime'];
-            document.querySelector('#records th:nth-child(3)').textContent = translations[lang]['level'];
         }
 
         startButton.addEventListener('click', startGame);
         resetButton.addEventListener('click', resetGame);
-        languageSwitch.addEventListener('click', switchLanguage);
 
         createGrid();
-        updateTexts();
     </script>
 </body>
 
@@ -351,3 +238,4 @@
 
 
 </html>
+
