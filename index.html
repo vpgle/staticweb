@@ -181,16 +181,7 @@
                 'nextNumber': 'The next correct number is: ',
                 'switchLanguage': 'English | 中文',
                 'gameOver': 'Game Over!'
-            },
-			'hi': {
-				'title': "शुल्टे ग्रिड",
-				'instruction': "शुरू पर क्लिक करें, फिर 1 से 25 तक के नंबरों पर आरोही क्रम में क्लिक करें",
-				'start': "शुरू करें",
-				'reset': "रीसेट करें",
-				'nickname': "उपनाम",
-				'completionTime': "पूरा करने का समय",
-				'level': "स्तर"
-			}
+            }
         };
 
         function shuffleArray(array) {
@@ -297,7 +288,7 @@
         }
 
         function updatePageTitle() {
-            pageTitle.textContent = `${translations[isEnglish ? 'en' : 'zh' : 'hi']['title']}${currentPage}${translations[isEnglish ? 'en' : 'zh']['level']}`;
+            pageTitle.textContent = `${translations[isEnglish ? 'en' : 'zh']['title']}${currentPage}${translations[isEnglish ? 'en' : 'zh']['level']}`;
         }
 
         function switchLanguage() {
@@ -306,7 +297,7 @@
         }
 
         function updateTexts() {
-            const lang = isEnglish ? 'en' : 'zh' : 'hi';
+            const lang = isEnglish ? 'en' : 'zh';
             languageSwitch.textContent = translations[lang]['switchLanguage'];
             updatePageTitle();
             instruction.textContent = translations[lang]['instruction'];
